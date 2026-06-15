@@ -9,7 +9,7 @@ Comprehensive deployment guides for major hosting platforms.
 - [Platform Comparison](#platform-comparison)
 - [Netlify](#netlify)
 - [Vercel](#vercel)
-- [Cloudflare Pages](#cloudflare-pages)
+- [Cloudflare Pages](#cloudflare-pages) — C3 CLI, SSR adapter, bindings (KV/R2/D1), local dev, previews
 - [GitHub Pages](#github-pages)
 - [Firebase Hosting](#firebase-hosting)
 - [AWS S3 + CloudFront](#aws-s3--cloudfront)
@@ -113,21 +113,123 @@ Automatic for every PR. Access via unique URLs like:
 
 ## Cloudflare Pages
 
-### Quick Setup
+### Setup Option A — C3 CLI (new project)
 
-1. Connect GitHub repo in Cloudflare dashboard
-2. Set framework preset: Astro
-3. Build command auto-detected
+```bash
+npm create cloudflare@latest -- my-astro-app --framework=astro --platform=pages
+```
 
-### Configuration
+C3 installs the `@astrojs/cloudflare` adapter automatically and offers an immediate deploy.
+
+### Setup Option B — connect existing repo
+
+1. Push project to GitHub
+2. Connect repo in Cloudflare Pages dashboard
+3. Set framework preset: Astro (build command `npm run build`, output `dist` auto-detected)
+4. Git push to main triggers deploy; every PR gets a preview URL
+
+### SSG vs SSR
+
+| Mode | Adapter needed | Notes |
+|------|---------------|-------|
+| SSG (default) | No | Static files served from edge CDN |
+| SSR / Hybrid | Yes — `@astrojs/cloudflare` | Renders on Pages Functions |
+
+Install adapter for SSR:
+
+```bash
+npm run astro add cloudflare
+```
+
+```javascript
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  output: 'server',  // or 'hybrid'
+  adapter: cloudflare({
+    platformProxy: { enabled: true }  // enables Cloudflare bindings in local dev
+  })
+});
+```
+
+### Pages Functions and Bindings
+
+Access Cloudflare services (KV, R2, D1, Durable Objects) via `Astro.locals.runtime.env`:
+
+```typescript
+// env.d.ts — type the runtime for autocomplete
+type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
+declare namespace App {
+  interface Locals extends Runtime {}
+}
+```
+
+```astro
+---
+// src/pages/data.astro
+const { env } = Astro.locals.runtime;
+
+// KV read
+const value = await env.MY_KV.get('key');
+
+// D1 query
+const result = await env.MY_DB.prepare('SELECT * FROM posts').all();
+
+// R2 object
+const object = await env.MY_BUCKET.get('file.pdf');
+---
+```
+
+Bind namespaces in the Cloudflare Pages dashboard (Settings → Functions → Bindings) or in `wrangler.toml`:
 
 ```toml
-# wrangler.toml (optional)
+# wrangler.toml
 name = "my-astro-site"
 compatibility_date = "2024-01-01"
 
-[site]
-bucket = "./dist"
+[[kv_namespaces]]
+binding = "MY_KV"
+id = "abc123"
+
+[[d1_databases]]
+binding = "MY_DB"
+database_id = "def456"
+
+[[r2_buckets]]
+binding = "MY_BUCKET"
+bucket_name = "my-bucket"
+```
+
+### Local Development with Wrangler
+
+Test bindings locally before deploying:
+
+```bash
+# Serve built output with Cloudflare runtime emulation
+npx wrangler pages dev dist
+
+# With local KV binding
+npx wrangler pages dev dist --kv=MY_KV
+
+# With local D1
+npx wrangler pages dev dist --d1=MY_DB
+```
+
+`platformProxy: { enabled: true }` in the adapter config makes `npm run dev` also work with bindings (without needing `wrangler pages dev`).
+
+### Preview Deployments
+
+- Every PR gets a unique preview URL: `<hash>.<project>.pages.dev`
+- Branch alias: `<branch-name>.<project>.pages.dev` (lowercased, non-alphanumeric → hyphen)
+- Preview URLs get `X-Robots-Tag: noindex` automatically — no duplicate content risk
+- Protect previews with Cloudflare Access policies (Settings → Access Policies)
+
+Delete an old preview deployment:
+
+```bash
+npx wrangler pages deployment delete <DEPLOYMENT_ID>
 ```
 
 ### Custom Headers
@@ -142,6 +244,12 @@ Create `public/_headers`:
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 ```
+
+### Build Notes
+
+- Build success/failure determined by exit code — `exit 0` = success even if stderr has warnings
+- Monorepo root directory can be set in dashboard (Settings → Builds → Root Directory)
+- Cloudflare Pages injects build-time variables automatically: `CF_PAGES=1`, `CF_PAGES_BRANCH`, `CF_PAGES_COMMIT_SHA`, `CF_PAGES_URL`, `CI=true`
 
 ## GitHub Pages
 

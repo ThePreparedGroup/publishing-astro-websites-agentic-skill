@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Comprehensive guidance for building and deploying static websites with the Astro framework",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {

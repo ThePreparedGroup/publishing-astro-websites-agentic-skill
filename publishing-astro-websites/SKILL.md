@@ -9,7 +9,7 @@ description: |
   GitHub Pages, or GCP/Firebase.
 license: MIT
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   category: web-development
   author: The Prepared Group
   triggers:
@@ -852,6 +852,16 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL;
 
 Set platform-specific variables in Netlify/Vercel/Firebase dashboards — never commit secrets to `.env` files checked into version control.
 
+**Cloudflare Pages injects these automatically at build time:**
+
+| Variable | Value | Use Case |
+|----------|-------|----------|
+| `CF_PAGES` | `1` | Detect Pages environment |
+| `CF_PAGES_BRANCH` | Branch name | Conditional logic per branch |
+| `CF_PAGES_COMMIT_SHA` | Commit hash | Source map uploads (Sentry, etc.) |
+| `CF_PAGES_URL` | Deployment URL | Canonical URL during build |
+| `CI` | `true` | Detect CI vs local |
+
 ## Performance Best Practices
 
 1. **Partial Hydration**: Use `client:*` directives only where needed
@@ -935,11 +945,20 @@ npm run preview
 5. Test live URL and check [Vercel dashboard](https://vercel.com/dashboard) for build logs
 
 **Cloudflare Pages:**
+
+Option A — C3 CLI (scaffold + deploy in one step):
+```bash
+npm create cloudflare@latest -- my-astro-app --framework=astro --platform=pages
+```
+
+Option B — connect existing repo:
 1. Connect GitHub repo in Cloudflare dashboard → set framework preset: Astro
-2. Build command and output directory (`dist`) auto-detected
-3. Deploy triggers on git push to main
-4. Verify: check Cloudflare Pages dashboard for deployment status
-5. Test custom domain and edge cache headers
+2. Build command (`npm run build`) and output directory (`dist`) are auto-detected
+3. Deploy triggers on every git push to main
+4. Each PR gets a preview URL: `<hash>.<project>.pages.dev` (auto-noindexed)
+5. Verify: Cloudflare Pages dashboard → confirm deployment status and preview URL
+
+> SSR sites require `@astrojs/cloudflare` adapter — see `references/deployment-platforms.md` for bindings (KV, R2, D1) and local dev setup.
 
 **GitHub Pages:**
 ```javascript
