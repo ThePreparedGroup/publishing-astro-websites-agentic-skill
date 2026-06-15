@@ -9,9 +9,9 @@ description: |
   GitHub Pages, or GCP/Firebase.
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   category: web-development
-  author: Claude Code Skills
+  author: The Prepared Group
   triggers:
     - astro
     - astro website
@@ -19,7 +19,15 @@ metadata:
     - astro content collections
     - astro deployment
     - astro firebase
+    - astro netlify
+    - astro vercel
+    - astro cloudflare
+    - astro github pages
     - astro mermaid
+    - astro search
+    - astro pagefind
+    - astro environment variables
+    - astro i18n
     - starlight
     - build astro site
   tags:

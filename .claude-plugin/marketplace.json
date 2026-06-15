@@ -1,17 +1,17 @@
 {
   "name": "publishing-astro-websites-agentic-skill",
   "owner": {
-    "name": "Richard Hightower",
-    "email": "rhightower@spillwave.com"
+    "name": "The Prepared Group",
+    "email": "ken@thepreparedgroup.com"
   },
   "metadata": {
     "description": "Comprehensive guidance for building and deploying static websites with the Astro framework",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "publishing-astro-websites",
-      "description": "Comprehensive guidance for building and deploying static websites with the Astro framework. This skill should be used when asked to create astro site, deploy astro to firebase, set up content collections, add mermaid diagrams to astro, configure astro i18n, build static blog, or astro markdown setup. Covers SSG fundamentals, Content Collections, Markdown/MDX, partial hydration, islands architecture, and deployment to Netlify, Vercel, GitHub Pages, or GCP/Firebase.",
+      "description": "Comprehensive guidance for building and deploying static websites with the Astro framework. Use when asked to create an Astro site, deploy Astro to Firebase, Netlify, Vercel, Cloudflare Pages, or GitHub Pages, set up content collections, add Mermaid diagrams, configure i18n, build a static blog, set up Astro search (Pagefind or Fuse.js), manage environment variables in Astro, or configure Astro markdown. Covers SSG fundamentals, Content Collections (Astro 4.x and 5.0+ Content Layer API), Markdown/MDX, partial hydration, islands architecture, environment variables, deployment to multiple platforms, and WebSocket/SSE limitations.",
       "source": "./",
       "strict": false,
       "skills": [

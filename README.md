@@ -100,6 +100,14 @@ The main skill file covers the full Astro SSG workflow:
 - Claude Code CLI
 - Node.js 18+ (for Astro projects)
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on adding patterns, fixing issues, and versioning.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
 ## License
 
 MIT
