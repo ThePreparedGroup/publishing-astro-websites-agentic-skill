@@ -2,6 +2,8 @@
 
 Comprehensive deployment guides for major hosting platforms.
 
+← [Back to SKILL.md](../SKILL.md)
+
 ## Contents
 
 - [Platform Comparison](#platform-comparison)

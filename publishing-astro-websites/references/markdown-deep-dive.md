@@ -2,6 +2,8 @@
 
 Advanced patterns for Markdown and MDX content in Astro static sites.
 
+← [Back to SKILL.md](../SKILL.md)
+
 ## Contents
 
 - [Static Markdown Rendering](#static-markdown-rendering)

@@ -46,6 +46,7 @@ Build fast, content-driven static websites with Astro's zero-runtime SSG approac
 - [Versioned Documentation](#versioned-documentation) — Starlight, Multi-version
 - [Internationalization](#internationalization-i18n) — Routing, Fallbacks
 - [Common Patterns](#common-patterns) — Pagination, Tags, RSS, Forms
+- [Environment Variables](#environment-variables) — PUBLIC_* vs build-time, platform secrets
 - [Performance Best Practices](#performance-best-practices) — Prefetching, Critical CSS
 - [Deployment](#deployment) — Firebase URL Config, GitHub Pages
 - [Pre-Deploy Checklist](#pre-deploy-checklist)
@@ -66,6 +67,7 @@ npm create astro@latest
 npm run dev          # Local server at http://localhost:4321
 npm run build        # Generate static files in dist/
 npm run preview      # Preview production build
+npx astro check      # Type-check components and validate Content Collection schemas
 ```
 
 ## When Not to Use
@@ -76,6 +78,7 @@ This skill focuses on **static site generation (SSG)**. Consider other approache
 - **User authentication flows** - Requires server-side session handling
 - **E-commerce with dynamic inventory** - Use hybrid mode or full SSR
 - **Single-page applications (SPAs)** - Consider React/Vue frameworks directly
+- **WebSockets / Server-Sent Events** - Require a persistent server; SSG has no runtime to maintain connections
 
 For hybrid SSG+SSR patterns, see Astro's adapter documentation.
 
@@ -812,6 +815,35 @@ const jsonLd = {
 
 With Tailwind, enable `darkMode: "class"` in config.
 
+## Environment Variables
+
+Astro exposes environment variables through `import.meta.env`. Variables prefixed with `PUBLIC_` are available in both server and client code; all others are build-time only.
+
+```bash
+# .env
+PUBLIC_SITE_URL=https://example.com   # Available in browser JS
+API_SECRET=secret123                   # Build-time only, never sent to client
+```
+
+```astro
+---
+// Build-time: available in frontmatter and server endpoints
+const secret = import.meta.env.API_SECRET;
+
+// Client-safe: available anywhere including <script> tags
+const siteUrl = import.meta.env.PUBLIC_SITE_URL;
+---
+```
+
+| Variable | Available In | Example Use |
+|----------|-------------|-------------|
+| `PUBLIC_*` | Frontmatter + browser `<script>` | Analytics IDs, public API URLs |
+| Non-public | Frontmatter + API routes only | API secrets, tokens |
+| `import.meta.env.MODE` | Everywhere | `'development'` or `'production'` |
+| `import.meta.env.PROD` | Everywhere | Feature flags per environment |
+
+Set platform-specific variables in Netlify/Vercel/Firebase dashboards — never commit secrets to `.env` files checked into version control.
+
 ## Performance Best Practices
 
 1. **Partial Hydration**: Use `client:*` directives only where needed
@@ -1236,9 +1268,8 @@ npm install @astrojs/rss
 
 ## References
 
-For detailed guides on specific topics, see:
-- `references/markdown-deep-dive.md` - Advanced Markdown/MDX patterns
-- `references/deployment-platforms.md` - Platform-specific deployment details
+- [markdown-deep-dive.md](references/markdown-deep-dive.md) — Schema patterns, filtering, MDX component mapping, remark/rehype plugins, image optimization, TOC generation, and Markdown troubleshooting
+- [deployment-platforms.md](references/deployment-platforms.md) — Step-by-step setup for Netlify, Vercel, Cloudflare Pages, GitHub Pages, Firebase, AWS S3+CloudFront, and GCS+CDN; common issues and performance optimization
 
 ## Key Resources
 
