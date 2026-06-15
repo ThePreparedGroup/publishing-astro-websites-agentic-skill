@@ -50,6 +50,10 @@ Build fast, content-driven static websites with Astro's zero-runtime SSG approac
 - [Deployment](#deployment) — Firebase URL Config, GitHub Pages
 - [Pre-Deploy Checklist](#pre-deploy-checklist)
 - [Testing & Quality](#testing--quality) — Vitest, Playwright, Link Checking
+- [.astro File Anatomy](#astro-file-anatomy)
+- [File-Based Routing](#file-based-routing)
+- [SEO Essentials](#seo-essentials)
+- [Essential Integrations](#essential-integrations)
 - [Troubleshooting](#troubleshooting)
 
 ## Quick Start
@@ -291,7 +295,7 @@ Use notation comments in code:
 - `// [!code ++]` - Mark as addition (green)
 - `// [!code --]` - Mark as deletion (red)
 
-### Expressive Code (Recommended for Docs)
+### Expressive Code (copy buttons, filenames, diff highlighting)
 
 Rich code blocks with copy buttons, filenames, diff highlighting:
 
@@ -311,7 +315,7 @@ Features: Copy button, file tabs, line markers, terminal frames, text markers.
 
 ## Diagram Integration
 
-### Mermaid (Recommended)
+### Mermaid (client-side rendering, no build dependencies)
 
 Install the Astro integration:
 
@@ -391,7 +395,7 @@ Bob --> Alice: Hi!
 
 ## Client-Side Search
 
-### Pagefind (Recommended for Large Sites)
+### Pagefind (build-time indexing, scales to 10,000+ pages)
 
 Zero-config static search that indexes at build time:
 
@@ -466,10 +470,8 @@ For smaller sites with custom UI needs:
 ---
 import { getCollection } from "astro:content";
 const posts = await getCollection('blog');
-const searchIndex = JSON.stringify(posts.map(post => ({
-  title: post.data.title,
-  slug: post.slug,
-  body: post.body.slice(0, 500)
+const searchIndex = JSON.stringify(posts.map(p => ({
+  title: p.data.title, slug: p.slug, body: p.body.slice(0, 500)
 })));
 ---
 
@@ -478,27 +480,18 @@ const searchIndex = JSON.stringify(posts.map(post => ({
 
 <script define:vars={{ searchIndex }}>
   import Fuse from 'fuse.js';
+  const fuse = new Fuse(JSON.parse(searchIndex), { keys: ['title', 'body'], threshold: 0.3 });
 
-  const fuse = new Fuse(JSON.parse(searchIndex), {
-    keys: ['title', 'body'],
-    threshold: 0.3
-  });
-
-  document.getElementById('search').addEventListener('input', (e) => {
-    const results = fuse.search(e.target.value);
-    const resultsEl = document.getElementById('results');
-
-    // Clear previous results safely
-    resultsEl.replaceChildren();
-
-    // Build results using safe DOM methods
-    results.forEach(r => {
+  document.getElementById('search').addEventListener('input', e => {
+    const ul = document.getElementById('results');
+    ul.replaceChildren();
+    fuse.search(e.target.value).forEach(({ item }) => {
       const li = document.createElement('li');
-      const link = document.createElement('a');
-      link.href = `/blog/${r.item.slug}`;
-      link.textContent = r.item.title;
-      li.appendChild(link);
-      resultsEl.appendChild(li);
+      const a = document.createElement('a');
+      a.href = `/blog/${item.slug}`;
+      a.textContent = item.title;
+      li.appendChild(a);
+      ul.appendChild(li);
     });
   });
 </script>
@@ -508,7 +501,7 @@ For enterprise needs, consider Algolia (hosted search API).
 
 ## Versioned Documentation
 
-### Starlight (Recommended for Docs Sites)
+### Starlight (purpose-built docs framework, built-in search and i18n)
 
 Purpose-built documentation framework on Astro:
 
@@ -755,7 +748,7 @@ export async function GET(context) {
 
 For SSG sites, use third-party form handlers:
 
-**Formspree (Easiest):**
+**Formspree (no backend required, free tier):**
 ```html
 <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
   <input type="text" name="name" required />
@@ -887,26 +880,50 @@ npm run preview
 
 ### Platform-Specific
 
-**Netlify/Vercel/Cloudflare Pages:**
-Connect Git repository - auto-deploys on push.
+**Netlify:**
+1. Push code to GitHub/GitLab
+2. Connect repository in Netlify dashboard → set build command `npm run build`, publish directory `dist`
+3. Trigger deploy via git push or `netlify deploy --build`
+4. Verify: `netlify status` — confirm deploy URL is live
+5. Test 404 page and asset loading on the preview URL
+
+**Vercel:**
+1. Install CLI: `npm i -g vercel`
+2. Run `vercel` in project root and follow prompts
+3. `vercel --prod` — promote to production
+4. Verify: `vercel ls` — confirm production deployment status
+5. Test live URL and check [Vercel dashboard](https://vercel.com/dashboard) for build logs
+
+**Cloudflare Pages:**
+1. Connect GitHub repo in Cloudflare dashboard → set framework preset: Astro
+2. Build command and output directory (`dist`) auto-detected
+3. Deploy triggers on git push to main
+4. Verify: check Cloudflare Pages dashboard for deployment status
+5. Test custom domain and edge cache headers
 
 **GitHub Pages:**
 ```javascript
-// astro.config.mjs
+// astro.config.mjs — required for subpath deploy
 export default defineConfig({
   site: 'https://username.github.io',
   base: '/repo-name'
 });
 ```
+1. Commit GitHub Actions workflow (see `references/deployment-platforms.md`)
+2. Push to main branch
+3. Verify: Actions tab → confirm workflow passes
+4. Test at `https://username.github.io/repo-name`
 
 **Firebase Hosting:**
 ```bash
 npm install -g firebase-tools
 firebase login
-firebase init hosting  # Set public to 'dist'
+firebase init hosting  # Set public directory to 'dist'
 npm run build
-firebase deploy
+firebase deploy --only hosting
 ```
+1. Verify: `firebase hosting:channel:list` — confirm live channel updated
+2. Test live URL for trailing slash behavior and 404 page
 
 `firebase.json` (recommended configuration):
 ```json

@@ -2,6 +2,19 @@
 
 Comprehensive deployment guides for major hosting platforms.
 
+## Contents
+
+- [Platform Comparison](#platform-comparison)
+- [Netlify](#netlify)
+- [Vercel](#vercel)
+- [Cloudflare Pages](#cloudflare-pages)
+- [GitHub Pages](#github-pages)
+- [Firebase Hosting](#firebase-hosting)
+- [AWS S3 + CloudFront](#aws-s3--cloudfront)
+- [GCS + Cloud CDN (GCP Alternative)](#gcs--cloud-cdn-gcp-alternative)
+- [Common Issues and Solutions](#common-issues-and-solutions)
+- [Performance Optimization](#performance-optimization)
+
 ## Platform Comparison
 
 | Platform | Auto CI/CD | Custom Domain | Edge CDN | Free Tier |
@@ -401,13 +414,13 @@ gcloud compute url-maps invalidate-cdn-cache my-lb \
 
 ### When to Use GCS + CDN vs Firebase
 
-| Scenario | Recommendation |
-|----------|----------------|
+| Scenario | Better Choice |
+|----------|---------------|
 | Simple static site | Firebase Hosting |
-| Need fine-grained cache control | GCS + CDN |
-| Already using GCP extensively | GCS + CDN |
-| Want simplest setup | Firebase Hosting |
-| Need custom CDN configuration | GCS + CDN |
+| Fine-grained cache control needed | GCS + CDN |
+| Already using GCP services | GCS + CDN |
+| Minimal configuration required | Firebase Hosting |
+| Custom CDN rules required | GCS + CDN |
 
 ## Common Issues and Solutions
 

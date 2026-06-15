@@ -2,6 +2,19 @@
 
 Advanced patterns for Markdown and MDX content in Astro static sites.
 
+## Contents
+
+- [Static Markdown Rendering](#static-markdown-rendering)
+- [Content Collection Best Practices](#content-collection-best-practices)
+- [Advanced Code Block Features](#advanced-code-block-features)
+- [MDX Integration](#mdx-integration)
+- [Remark and Rehype Plugins](#remark-and-rehype-plugins)
+- [Table of Contents Generation](#table-of-contents-generation)
+- [Images in Markdown](#images-in-markdown)
+- [Custom Frontmatter Fields](#custom-frontmatter-fields)
+- [Performance Considerations](#performance-considerations)
+- [Troubleshooting Markdown Issues](#troubleshooting-markdown-issues)
+
 ## Static Markdown Rendering
 
 Astro treats Markdown as build-time content with zero runtime cost:
